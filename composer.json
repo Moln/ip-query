@@ -1,0 +1,42 @@
+{
+  "name": "ycgame/ip-query",
+  "description": "IP查询接口",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "xiemaomao",
+      "email": "xiemaomao@ztgame.com"
+    }
+  ],
+  "require": {
+    "swoole/library": "dev-master",
+    "geoip2/geoip2": "^2.6",
+    "zendframework/zend-log": "^2.9",
+    "zendframework/zend-servicemanager": "^3.0",
+    "guzzlehttp/guzzle": "^6.4",
+    "ext-redis": "*",
+    "psr/simple-cache": "^1.0",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Moln\\IpQuery\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MolnTest\\IpQuery\\": "test/"
+    }
+  },
+  "require-dev": {
+    "swoole/ide-helper": "^4.4",
+    "phpunit/phpunit": "^8.4"
+  },
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/swoole/library.git"
+    }
+  ]
+}

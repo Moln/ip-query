@@ -1,0 +1,11 @@
+/composer.lock
+/.idea
+/vendor
+/data/cache/*
+/data/logs/*
+!/data/cache/.gitkeep
+!/data/logs/.gitkeep
+/public/yc_user_query.php
+/data/GeoLite2-City.mmdb
+/data/GeoLite2-Country.mmdb
+/.phpunit.result.cache

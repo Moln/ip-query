@@ -1,0 +1,62 @@
+#!/usr/bin/env php
+<?php
+define('SWOOLE_USE_SHORTNAME', false);
+
+$container = include_once __DIR__ . '/../config/container.php';
+
+use Moln\IpQuery\Provider\CacheWrapperProvider;
+use Psr\Log\LoggerInterface;
+use Swoole\Redis\Server;
+
+Swoole\Runtime::enableCoroutine(true);
+
+$server = new Server('0.0.0.0', 9501, SWOOLE_PROCESS);
+$server->set([
+    'worker_num' => 2,
+]);
+
+/** @var LoggerInterface $logger */
+$logger = $container->get(LoggerInterface::class);
+
+/** @var \Swoole\ConnectionPool $providerPool */
+$providerPool = $container->get('ProviderPool');
+
+//asynchronous mode
+$server->setHandler('Get', function ($fd, $data) use ($server, $providerPool, $logger) {
+    if (count($data) != 1) {
+        $server->send($fd, Server::format(Server::ERROR, '-ERR wrong number of arguments for \'get\' command'));
+        return ;
+    }
+    if (ip2long($data[0]) === false) {
+        $server->send($fd, Server::format(Server::ERROR, 'ERR Invalid argument, need IPv4 format.'));
+        return ;
+    }
+
+//    $server->send($fd, Server::format(Server::STRING, str_repeat('a', 1024)));
+//    return ;
+    try {
+        /** @var CacheWrapperProvider $provider */
+        $provider = $providerPool->get();
+        $result = $provider->query($data[0]);
+        $server->send($fd, Server::format(Server::STRING, json_encode($result, JSON_UNESCAPED_UNICODE)));
+    } catch(\Exception $e) {
+        $logger->error($e->getMessage());
+        $server->send($fd, '-ERR Provider throw exception: ' . str_replace(["\n", "\r"], "", $e->getMessage()));
+    } finally {
+        $providerPool->put($provider);
+    }
+});
+
+$server->on('start', function () use ($logger) {
+    $logger->info('Start...');
+});
+$server->on('ManagerStart', function () use ($logger) {
+    $logger->info('ManagerStart...');
+});
+$server->on('WorkerStart', function () use ($logger) {
+    $logger->info('WorkerStart, PID: ' . getmypid() . '...');
+});
+$server->on('Shutdown', function () use ($logger) {
+    $logger->info('Shutdown...');
+});
+$server->start();
