@@ -1,11 +1,10 @@
 <?php
 
-
 namespace Moln\IpQuery\Provider;
-
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -30,26 +29,32 @@ class IpipNetFreeApi implements ProviderInterface, LoggerAwareInterface
     public function __construct(ClientInterface $client = null, ?LoggerInterface $logger = null)
     {
         $this->logger = $logger ?: new NullLogger();
-        $this->client = $client ?: new Client(['connect_timeout' => 5, 'timeout' => 5]);
+        $this->client = $client ?: $this->getDefaultClient();
     }
 
-    public function query(string $ip, array $context = []): array
+    protected function getDefaultClient()
     {
-//    $url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?query=8.8.8.8&co=&resource_id=6006&t=1511147699339&ie=utf8&oe=utf8&cb=op_aladdin_callback&format=json&tn=baidu&cb=jQuery110206850772970366219_1511147682169&_=1511147682171';
-
         $header = [
             'Accept-Language' => 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
             'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'Accept-Encoding' => 'gzip, deflate',
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36',
-            'Cookie' => '__jsluid_h=9a1172beb85c2e9095b80a75f9932328',
         ];
 
+        return new Client([
+            'connect_timeout' => 10,
+            'timeout' => 10,
+            'cookies' => true,
+            'proxy' => 'socks5://127.0.0.1:10081',
+            'headers' => $header,
+        ]);
+    }
+
+    public function query(string $ip, array $context = []): array
+    {
         try {
-            $response = $this->client->get($this->url . $ip, [
-                'headers' => $header,
-            ]);
-        } catch(\Exception $e) {
+            $response = $this->client->get($this->url . $ip);
+        } catch (ClientException $e) {
             throw new \RuntimeException(sprintf('IP(%s), ipip.net request error: %s', $ip, $e->getMessage()), 0, $e);
         }
 

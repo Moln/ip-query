@@ -17,7 +17,25 @@ class BaiduIp implements ProviderInterface
 
     public function __construct(?ClientInterface $client = null)
     {
-        $this->client = $client ?: new Client(['connect_timeout' => 5, 'timeout' => 5]);
+        $this->client = $client ?: $this->getDefaultClient();
+    }
+
+    protected function getDefaultClient()
+    {
+        $header = [
+            'Accept-Language' => 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept' => '*/*',
+            'Accept-Encoding' => 'gzip, deflate',
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0',
+            'Referer' => 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=ip&rsv_pq=ba77603200006cd3&rsv_t=f78bABtiVUsMf5KhHXgZjfFntj2xrvmzqdtbx9r7yDSNAvNAojeCPgTVkFk&rqlang=cn&rsv_enter=1&rsv_sug3=3&rsv_sug1=2&rsv_sug7=100&rsv_sug2=0&inputT=606&rsv_sug4=1273',
+            'Cookie' => 'BAIDUID=19A6B4EE4548062BBD3996F886148BD5:FG=1; BIDUPSID=19A6B4EE4548062BBD3996F886148BD5; PSTM=1493809988; H_PS_PSSID=1464_21078_18559',
+        ];
+
+        return new Client([
+            'connect_timeout' => 5,
+            'timeout' => 5,
+            'headers' => $header,
+        ]);
     }
 
     public function query(string $ip, array $context = []): array
@@ -30,7 +48,7 @@ class BaiduIp implements ProviderInterface
             't' => intval(microtime(true) * 1000),
             'ie' => 'utf8',
             'oe' => 'utf8',
-            //        'cb' => 'op_aladdin_callback',
+            // 'cb' => 'op_aladdin_callback',
             'format' => 'format',
             'tn' => 'baidu',
             'cb' => 'jQuery11020685077' . mt_rand(1000000000, 9999999999) . '_' . intval(microtime(true) * 1000),
@@ -38,18 +56,9 @@ class BaiduIp implements ProviderInterface
         ];
 //    $url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?query=8.8.8.8&co=&resource_id=6006&t=1511147699339&ie=utf8&oe=utf8&cb=op_aladdin_callback&format=json&tn=baidu&cb=jQuery110206850772970366219_1511147682169&_=1511147682171';
 
-        $header = [
-            'Accept-Language' => 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
-            'Accept' => '*/*',
-            'Accept-Encoding' => 'gzip, deflate',
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0',
-            'Referer' => 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=ip&rsv_pq=ba77603200006cd3&rsv_t=f78bABtiVUsMf5KhHXgZjfFntj2xrvmzqdtbx9r7yDSNAvNAojeCPgTVkFk&rqlang=cn&rsv_enter=1&rsv_sug3=3&rsv_sug1=2&rsv_sug7=100&rsv_sug2=0&inputT=606&rsv_sug4=1273',
-            'Cookie' => 'BAIDUID=19A6B4EE4548062BBD3996F886148BD5:FG=1; BIDUPSID=19A6B4EE4548062BBD3996F886148BD5; PSTM=1493809988; H_PS_PSSID=1464_21078_18559',
-        ];
 
         try {
             $response = $this->client->get($url, [
-                'headers' => $header,
                 'query' => $params,
             ]);
         } catch(\Exception $e) {
