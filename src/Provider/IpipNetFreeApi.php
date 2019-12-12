@@ -45,7 +45,6 @@ class IpipNetFreeApi implements ProviderInterface, LoggerAwareInterface
             'connect_timeout' => 10,
             'timeout' => 10,
             'cookies' => true,
-            'proxy' => 'socks5://127.0.0.1:10081',
             'headers' => $header,
         ]);
     }

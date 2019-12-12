@@ -50,11 +50,13 @@ class GeoIp implements ProviderInterface, LoggerAwareInterface
                     'country'  => '中国',
                     'province' => '香港',
                     'city'     => $city['zh-CN'],
+                    'info'     => null,
                 ],
                 'en'    => [
                     'country'  => 'China',
                     'province' => 'Hong Kong',
                     'city'     => $city['en'],
+                    'info'     => null,
                 ],
             ],
             'Taiwan'    => [
@@ -62,11 +64,13 @@ class GeoIp implements ProviderInterface, LoggerAwareInterface
                     'country'  => '中国',
                     'province' => '台湾',
                     'city'     => $city['zh-CN'],
+                    'info'     => null,
                 ],
                 'en'    => [
                     'country'  => 'China',
                     'province' => 'Taiwan',
                     'city'     => $city['en'],
+                    'info'     => null,
                 ],
             ],
             'Macao'     => [
@@ -74,11 +78,13 @@ class GeoIp implements ProviderInterface, LoggerAwareInterface
                     'country'  => '中国',
                     'province' => '澳门',
                     'city'     => $city['zh-CN'],
+                    'info'     => null,
                 ],
                 'en'    => [
                     'country'  => 'China',
                     'province' => 'Macao',
                     'city'     => $city['en'],
+                    'info'     => null,
                 ],
             ],
         ];
