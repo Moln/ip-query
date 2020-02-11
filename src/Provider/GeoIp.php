@@ -94,6 +94,9 @@ class GeoIp implements ProviderInterface, LoggerAwareInterface
         } else {
             if (! empty($ret->country->names[$lang])) {
                 $result['country'] = $ret->country->names[$lang];
+                if ($result['country'] == '大韩民国') {
+                    $result['country'] = '朝鲜';
+                }
             }
 
             if (! empty($ret->city->names[$lang])) {

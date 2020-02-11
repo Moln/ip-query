@@ -6,6 +6,9 @@ namespace Moln\IpQuery\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 
+/**
+ * 用Redis存储数据, 并序列化压缩数据
+ */
 class RedisCache implements CacheInterface
 {
     /**

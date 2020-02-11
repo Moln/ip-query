@@ -4,6 +4,10 @@
 namespace Moln\IpQuery\Cache;
 
 
+/**
+ * 序列化存储数据
+ * 映射国家省份数据, 减少数据存储大小
+ */
 class LocaleSerializer
 {
     const SEPARATOR = '/';

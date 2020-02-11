@@ -50,7 +50,7 @@ class CountryFilter
         ['CS', '捷克', 'Czech', '420'],
         ['CU', '古巴', 'Cuba', '53'],
         ['CY', '塞浦路斯', 'Cyprus', '357'],
-        ['CZ', '捷克', 'Czech Republic', '420'],
+        ['CZ', '捷克共和国', 'Czech Republic', '420'],
         ['DE', '德国', 'Germany', '49'],
         ['DJ', '吉布提', 'Djibouti', '253'],
         ['DK', '丹麦', 'Denmark', '45'],
