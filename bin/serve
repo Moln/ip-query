@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-define('SWOOLE_USE_SHORTNAME', false);
 
 $container = include_once __DIR__ . '/../config/container.php';
 
@@ -12,6 +11,7 @@ Swoole\Runtime::enableCoroutine(true);
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_PROCESS);
 $server->set([
+    'pid_file' => __DIR__ . '/../data/redis.pid',
     'worker_num' => 2,
     'daemonize' => true,
 ]);
@@ -52,11 +52,16 @@ $server->on('start', function () use ($logger) {
     $logger->info('Start...');
 });
 $server->on('ManagerStart', function () use ($logger) {
-    swoole_set_process_name('php ip-query-redis manager');
     $logger->info('ManagerStart...');
 });
-$server->on('WorkerStart', function () use ($logger) {
+$server->on('WorkerStart', function ($server, $worker_id) use ($logger) {
     $logger->info('WorkerStart, PID: ' . getmypid() . '...');
+
+    if($worker_id >= $server->setting['worker_num']) {
+        swoole_set_process_name("php ip-query-redis task worker");
+    } else {
+        swoole_set_process_name("php ip-query-redis event worker");
+    }
 });
 $server->on('Shutdown', function () use ($logger) {
     $logger->info('Shutdown...');
