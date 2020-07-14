@@ -13,6 +13,7 @@ Swoole\Runtime::enableCoroutine(true);
 $server = new Server('0.0.0.0', 9501, SWOOLE_PROCESS);
 $server->set([
     'worker_num' => 2,
+    'daemonize' => true,
 ]);
 
 /** @var LoggerInterface $logger */
@@ -51,6 +52,7 @@ $server->on('start', function () use ($logger) {
     $logger->info('Start...');
 });
 $server->on('ManagerStart', function () use ($logger) {
+    swoole_set_process_name('php ip-query-redis manager');
     $logger->info('ManagerStart...');
 });
 $server->on('WorkerStart', function () use ($logger) {
