@@ -57,8 +57,8 @@ $config = [
             ChainProvider::class => function (ContainerInterface $container) {
                 return new ChainProvider(
                     [
-                        ['provider' => $container->get(BaiduIp::class), 'allow_countries' => ['中国']],
-                        $container->get(IpipNetFreeApi::class),
+                        ['provider' => $container->get(BaiduIp::class), 'allow_countries' => ['中国', '本地局域网']],
+//                        $container->get(IpipNetFreeApi::class),
                         $container->get(GeoIp::class),
                     ],
                     $container->get(LoggerInterface::class),
@@ -75,8 +75,8 @@ $config = [
                         return new CacheWrapperProvider(
                             new ChainProvider(
                                 [
-                                    ['provider' => $container->build(BaiduIp::class), 'allow_countries' => ['中国']],
-                                    $container->build(IpipNetFreeApi::class),
+                                    ['provider' => $container->build(BaiduIp::class), 'allow_countries' => ['中国', '本地局域网']],
+//                                    $container->build(IpipNetFreeApi::class),
                                     $container->build(GeoIp::class)
                                 ],
                                 $container->get(LoggerInterface::class)
