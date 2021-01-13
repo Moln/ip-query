@@ -43,6 +43,7 @@ class ChainProvider implements ProviderInterface, LoggerAwareInterface
     public function query(string $ip, array $context = []): array
     {
         $ex = null;
+        $candidate = null;
         foreach ($this->providers as $providerConfig) {
             try {
                 $provider = $providerConfig['provider'];
@@ -51,6 +52,7 @@ class ChainProvider implements ProviderInterface, LoggerAwareInterface
 
                 if (isset($providerConfig['allow_countries']) &&
                     !in_array($result['country'], $providerConfig['allow_countries'])) {
+                    $candidate = $result;
                     continue;
                 }
 
@@ -59,6 +61,10 @@ class ChainProvider implements ProviderInterface, LoggerAwareInterface
                 $this->logger->notice(get_class($provider) . ' query error: ' . $e->getMessage());
                 $ex = $e;
             }
+        }
+
+        if ($candidate) {
+            return $candidate;
         }
 
         throw new \RuntimeException('Providers query error.', 0, $ex);

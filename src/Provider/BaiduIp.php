@@ -44,7 +44,7 @@ class BaiduIp implements ProviderInterface
         $params = [
             'query' => $ip,
             'co' => '',
-            'resource_id' => '6006',
+            'resource_id' => '5809',
             't' => intval(microtime(true) * 1000),
             'ie' => 'utf8',
             'oe' => 'utf8',
@@ -79,7 +79,7 @@ class BaiduIp implements ProviderInterface
 
         $body = $response->getBody();
 
-        $res = substr($body, 46, -2);
+        $res = substr($body, 42, -1);
         $res = json_decode($res, true);
 
         if ($res['status'] != 0 || !count($res['data'])) {
