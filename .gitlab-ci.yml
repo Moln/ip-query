@@ -23,7 +23,7 @@ deploy:build:
     key: prod-vendor
     <<: *cache_paths
   script:
-    - composer install --no-dev -o -n
+    - composer install --no-dev -o -n --ignore-platform-req=ext-redis
   artifacts:
     expire_in: 7 days
     paths:
