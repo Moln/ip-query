@@ -18,7 +18,7 @@ variables:
 
 deploy:build:
   <<: *tags
-  stage: deploy
+  stage: build
   cache:
     key: prod-vendor
     <<: *cache_paths
@@ -51,6 +51,5 @@ deploy:build:
 #       --exclude='.composer/'
 #       ./ $PROD_SSH_USER_HOST:$REMOTE_PATH
 #    - ssh $PROD_SSH_USER_HOST1 'cd '$REMOTE_PATH' && chmod 777 data/cache data/logs'
-
   only:
     - master
