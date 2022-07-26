@@ -1,14 +1,11 @@
 image: phpswoole/swoole:php8.1
 
 stages:
-#  - test
-  - deploy
   - build
 
 variables:
   COMPOSER_MIRROR_PATH_REPOS: "1"
   COMPOSER_ALLOW_SUPERUSER: "1"
-  REMOTE_PATH: "/var/www/ip-query-api"
 
 .tags: &tags
   tags:
@@ -26,21 +23,34 @@ deploy:build:
     key: prod-vendor
     <<: *cache_paths
   script:
-
     - composer install --no-dev -o -n
-
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - bind/
+      - config/
+      - docker/
+      - src/
+      - vendor/
+      - .env
+      - server.php
+      - composer.json
+      - composer.lock
+      - docker-compose.yml
+      - Dockerfile
+      - README.md
+      - LICENSE
     # Server 1
-    - rsync -rav -e ssh --owner --exclude='.git/'
-       --exclude='test/'
-       --exclude='data/sql/'
-       --exclude='docs/'
-       --exclude='.gitlab-ci.yml'
-       --exclude='.config/development.config.php'
-       --exclude='.config/autoload/development.local.php'
-       --exclude='.composer/'
-       ./ $PROD_SSH_USER_HOST1:$REMOTE_PATH
-    - ssh $PROD_SSH_USER_HOST1 'cd '$REMOTE_PATH' && chmod 777 data/cache data/logs'
+#    - rsync -rav -e ssh --owner --exclude='.git/'
+#       --exclude='test/'
+#       --exclude='data/sql/'
+#       --exclude='docs/'
+#       --exclude='.gitlab-ci.yml'
+#       --exclude='.config/development.config.php'
+#       --exclude='.config/autoload/development.local.php'
+#       --exclude='.composer/'
+#       ./ $PROD_SSH_USER_HOST:$REMOTE_PATH
+#    - ssh $PROD_SSH_USER_HOST1 'cd '$REMOTE_PATH' && chmod 777 data/cache data/logs'
 
   only:
     - master
-  when: manual

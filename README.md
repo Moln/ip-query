@@ -1,8 +1,34 @@
 # ip-query
 基于 Redis 协议的IP查询库
 
+## 安装PHP依赖
+
+```bash
+composer install --no-dev -o -n
+```
 
 ## 服务启动
+
+### 使用 docker-compose
+
+#### 内包含 crontab 定期执行 geoipupdate
+
+- 若需要执行 geoip 自动更新（geoipupdate）， 需要填写 [`docker/GeoIP.conf`](docker/GeoIP.conf) 的配置 
+  - `AccountID` 
+  - `LicenseKey`
+- crontab 配置文件：[`docker/geoipupdate-cron`](docker/geoipupdate-cron)
+
+#### 启动：
+
+```bash
+docker-compose up -d
+```
+
+`.env` 支持的环境参数：
+```bash
+REDIS=<REDIS_HOST>:<REDIS_PORT>
+```
+
 
 ### 基于 HTTP 服务:
 

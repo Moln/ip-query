@@ -3,6 +3,7 @@
 BASEDIR=$(dirname $(dirname "$0"))
 #echo "$BASEDIR"
 
+echo "Update GeoIP"
 geoipupdate
 
 CITY_FILE=$BASEDIR"/data/GeoLite2-City.mmdb";
