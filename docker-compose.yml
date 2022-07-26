@@ -15,6 +15,6 @@ services:
       - ./:/var/www
       - ./docker/geoipupdate-cron:/etc/cron.d/geoipupdate
       - ./docker/GeoIP.conf:/etc/GeoIP.conf
-    command: ./docker/entrypoint.sh
+    command: sh ./docker/entrypoint.sh
 
 # docker run --env-file <file> -v <database directory>:/usr/share/GeoIP maxmindinc/geoipupdate

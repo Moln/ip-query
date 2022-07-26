@@ -29,6 +29,7 @@ deploy:build:
     paths:
       - bin/
       - config/
+      - data/
       - docker/
       - src/
       - vendor/
@@ -52,3 +53,4 @@ deploy:build:
 #    - ssh $PROD_SSH_USER_HOST1 'cd '$REMOTE_PATH' && chmod 777 data/cache data/logs'
   only:
     - master
+    - tags
