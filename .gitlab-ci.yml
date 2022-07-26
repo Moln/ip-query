@@ -27,13 +27,12 @@ deploy:build:
   artifacts:
     expire_in: 7 days
     paths:
-      - bind/
+      - bin/
       - config/
       - docker/
       - src/
       - vendor/
       - .env
-      - server.php
       - composer.json
       - composer.lock
       - docker-compose.yml
