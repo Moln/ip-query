@@ -16,7 +16,7 @@ variables:
   paths:
     - vendor/
 
-deploy:build:
+build:
   <<: *tags
   stage: build
   cache:
