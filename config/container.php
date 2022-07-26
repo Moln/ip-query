@@ -17,14 +17,17 @@ use Moln\IpQuery\Provider\ProviderInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use Zend\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
-use Zend\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
+use Laminas\ServiceManager\ServiceManager;
+
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
 $config = [
     'dependencies' => [
         'factories' => [
             LoggerInterface::class => function () {
-                $zendLogLogger = new Zend\Log\Logger([
+                $zendLogLogger = new Laminas\Log\Logger([
                     'writers' => [
                         [
                             'name'    => 'stream',
@@ -48,9 +51,9 @@ $config = [
                         ],
                     ],
                 ]);
-                $zendLogLogger->addProcessor(new Zend\Log\Processor\PsrPlaceholder);
+                $zendLogLogger->addProcessor(new Laminas\Log\Processor\PsrPlaceholder);
 
-                return new Zend\Log\PsrLoggerAdapter($zendLogLogger);
+                return new Laminas\Log\PsrLoggerAdapter($zendLogLogger);
             },
             BaiduIp::class => ReflectionBasedAbstractFactory::class,
             GeoIp::class => GeoipProviderFactory::class,
@@ -100,7 +103,7 @@ $config = [
     'ip-query' => [
         'path' => __DIR__ . '/../data/GeoLite2-City.mmdb',
     ],
-    'redis' => 'tcp://192.168.2.152'
+    'redis' => $_ENV['REDIS'] ?? 'tcp://redis_server'
 ];
 $container = new ServiceManager($config['dependencies']);
 $container->setService('config', $config);

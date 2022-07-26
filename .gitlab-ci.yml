@@ -1,26 +1,14 @@
-image: tetraweb/php:7.1
+image: phpswoole/swoole:php8.1
 
 stages:
 #  - test
   - deploy
+  - build
 
 variables:
   COMPOSER_MIRROR_PATH_REPOS: "1"
   COMPOSER_ALLOW_SUPERUSER: "1"
   REMOTE_PATH: "/var/www/ip-query-api"
-
-before_script:
-  - pwd
-  - ls -a
-  - docker-php-ext-enable redis zip bcmath pdo_mysql soap gd
-  - composer config -g repo.packagist composer https://packagist.laravel-china.org
-
-  # ssh key init
-  - eval $(ssh-agent -s)
-  - echo "$PROD_SSH_PRIVATE_KEY"  | tr -d '\r'  | ssh-add - > /dev/null
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
 .tags: &tags
   tags:
@@ -31,22 +19,7 @@ before_script:
   paths:
     - vendor/
 
-#test:
-#  <<: *tags
-#  stage: test
-#  cache:
-#    key: test-vendor
-#    <<: *cache_paths
-#  script:
-#    - composer install
-#    - composer development-enable
-#    - vendor/bin/phpcs
-#    - docker-php-ext-enable xdebug
-#    - vendor/bin/phpunit --configuration phpunit.xml --coverage-text --colors=never
-#  except:
-#    - master
-
-deploy:prod:
+deploy:build:
   <<: *tags
   stage: deploy
   cache:
@@ -68,36 +41,6 @@ deploy:prod:
        ./ $PROD_SSH_USER_HOST1:$REMOTE_PATH
     - ssh $PROD_SSH_USER_HOST1 'cd '$REMOTE_PATH' && chmod 777 data/cache data/logs'
 
-    # Server 2
-    - rsync -rav -e ssh --owner --exclude='.git/'
-      --exclude='test/'
-      --exclude='data/sql/'
-      --exclude='docs/'
-      --exclude='.gitlab-ci.yml'
-      --exclude='.config/development.config.php'
-      --exclude='.config/autoload/development.local.php'
-      --exclude='.composer/'
-      ./ $PROD_SSH_USER_HOST2:$REMOTE_PATH
-    - ssh $PROD_SSH_USER_HOST2 'cd '$REMOTE_PATH' && chmod 777 data/cache data/logs'
-  only:
-    - master
-  when: manual
-
-deploy:update_geoip:
-  <<: *tags
-  stage: deploy
-  script:
-    # Server 1
-    - ssh $PROD_SSH_USER_HOST1 'wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -q -O /tmp/GeoLite2-City.tar.gz'
-    - ssh $PROD_SSH_USER_HOST1 'tar zxvf /tmp/GeoLite2-City.tar.gz && cp GeoLite2-City*/GeoLite2-City.mmdb '$REMOTE_PATH'/data/'
-    - ssh $PROD_SSH_USER_HOST1 'wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz -q -O /tmp/GeoLite2-Country.tar.gz'
-    - ssh $PROD_SSH_USER_HOST1 'tar zxvf /tmp/GeoLite2-Country.tar.gz && cp GeoLite2-Country*/GeoLite2-Country.mmdb '$REMOTE_PATH'/data/'
-
-    # Server 2
-    - ssh $PROD_SSH_USER_HOST2 'wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -q -O /tmp/GeoLite2-City.tar.gz'
-    - ssh $PROD_SSH_USER_HOST2 'tar zxvf /tmp/GeoLite2-City.tar.gz && cp GeoLite2-City*/GeoLite2-City.mmdb '$REMOTE_PATH'/data/'
-    - ssh $PROD_SSH_USER_HOST2 'wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz -q -O /tmp/GeoLite2-Country.tar.gz'
-    - ssh $PROD_SSH_USER_HOST2 'tar zxvf /tmp/GeoLite2-Country.tar.gz && cp GeoLite2-Country*/GeoLite2-Country.mmdb '$REMOTE_PATH'/data/'
   only:
     - master
   when: manual

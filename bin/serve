@@ -9,11 +9,13 @@ use Swoole\Redis\Server;
 
 Swoole\Runtime::enableCoroutine(true);
 
+$daemonize = array_search('-d', $argv, true) !== false;
+
 $server = new Server('0.0.0.0', 9501, SWOOLE_PROCESS);
 $server->set([
     'pid_file' => __DIR__ . '/../data/redis.pid',
     'worker_num' => 2,
-    'daemonize' => true,
+    'daemonize' => $daemonize,
 ]);
 
 /** @var LoggerInterface $logger */

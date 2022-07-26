@@ -4,7 +4,7 @@
 namespace MolnTest\IpQuery;
 
 
-use Zend\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\ServiceManager;
 
 trait ContainerTrait
 {
@@ -14,5 +14,13 @@ trait ContainerTrait
     protected function setUp(): void
     {
         $this->container = include __DIR__ . '/../config/container.php';
+    }
+
+    public function assertKeyExists(array $result): void
+    {
+        $this->assertArrayHasKey('country', $result);
+        $this->assertArrayHasKey('province', $result);
+        $this->assertArrayHasKey('city', $result);
+        $this->assertArrayHasKey('info', $result);
     }
 }

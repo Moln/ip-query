@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  redis_server:
+    image: redis:7
+#
+  ip_query_server:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 9501:9501
+      - 9502:9502
+    volumes:
+      - ./:/var/www
+      - ./docker/geoipupdate-cron:/etc/cron.d/geoipupdate
+      - ./docker/GeoIP.conf:/etc/GeoIP.conf
+    command: ./docker/entrypoint.sh
+
+# docker run --env-file <file> -v <database directory>:/usr/share/GeoIP maxmindinc/geoipupdate

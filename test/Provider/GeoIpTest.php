@@ -14,17 +14,9 @@ class GeoIpTest extends TestCase
     {
         /** @var GeoIp $provider */
         $provider = $this->container->get(GeoIp::class);
-        $result = $provider->query('103.63.155.5');
-//        $result = $provider->query('113.159.192.27');
+//        $result = $provider->query('10.200.0.11');
+        $result = $provider->query('113.159.192.27');
 
-        $this->assertEquals(
-            [
-                'country' => '中国',
-                'province' => '北京',
-                'city' => '',
-                'info' => null,
-            ],
-            $result
-        );
+        $this->assertKeyExists($result);
     }
 }

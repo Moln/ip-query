@@ -10,10 +10,10 @@ COUNTRY_FILE=$BASEDIR"/data/GeoLite2-Country.mmdb";
 CITY_MD5=$CITY_FILE".md5";
 COUNTRY_MD5=$COUNTRY_FILE".md5";
 
-#echo $CITY_FILE
-#echo $COUNTRY_FILE
-#echo $CITY_MD5
-#echo $COUNTRY_MD5
+echo $CITY_FILE
+echo $COUNTRY_FILE
+echo $CITY_MD5
+echo $COUNTRY_MD5
 
 if [ ! -f "$CITY_MD5" ]; then md5sum "$CITY_FILE" > "$CITY_MD5" ; fi;
 if [ ! -f "$COUNTRY_MD5" ]; then md5sum "$COUNTRY_FILE" > "$COUNTRY_MD5" ; fi;
