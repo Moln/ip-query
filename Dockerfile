@@ -10,5 +10,6 @@ RUN pecl install redis  \
 
 COPY ./ /var/www
 COPY ./docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 CMD ["/bin/bash", "/entrypoint.sh"]
