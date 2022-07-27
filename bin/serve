@@ -14,7 +14,7 @@ $daemonize = array_search('-d', $argv, true) !== false;
 $server = new Server('0.0.0.0', 9501, SWOOLE_PROCESS);
 $server->set([
     'pid_file' => __DIR__ . '/../data/redis.pid',
-    'worker_num' => 2,
+    'worker_num' => $_ENV['WORKER_NUM'] ?? 2,
     'daemonize' => $daemonize,
 ]);
 

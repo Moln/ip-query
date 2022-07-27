@@ -13,8 +13,11 @@ services:
       - 9502:9502
     volumes:
       - ./:/var/www
-      - ./docker/geoipupdate-cron:/etc/cron.d/geoipupdate
-      - ./docker/GeoIP.conf:/etc/GeoIP.conf
+#      - ./docker/geoipupdate-cron:/etc/cron.d/geoipupdate
+    environment:
+#      - GEOIPUPDATE_ACCOUNT_ID=<YOUR_ACCOUNT_ID_HERE>
+#      - GEOIPUPDATE_LICENSE_KEY=<YOUR_LICENSE_KEY_HERE>
+      - WORKER_NUM=2
     command: sh ./docker/entrypoint.sh
 
 # docker run --env-file <file> -v <database directory>:/usr/share/GeoIP maxmindinc/geoipupdate

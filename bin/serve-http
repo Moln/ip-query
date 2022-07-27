@@ -15,7 +15,7 @@ $server = new Server('0.0.0.0', 9502, SWOOLE_PROCESS);
 $server->set([
     'pid_file' => __DIR__ . '/../data/http.pid',
     'log_level' => SWOOLE_LOG_DEBUG,
-    'worker_num' => 2,
+    'worker_num' => $_ENV['WORKER_NUM'] ?? 2,
     'open_tcp_keepalive' => 1,
     'tcp_keepidle' => 5, //4s没有数据传输就进行检测
     'tcp_keepinterval' => 1, //1s探测一次

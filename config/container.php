@@ -22,34 +22,38 @@ use Laminas\ServiceManager\ServiceManager;
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
+$daemonize = array_search('-d', $argv, true) !== false;
 
 $config = [
     'dependencies' => [
         'factories' => [
-            LoggerInterface::class => function () {
+            LoggerInterface::class => function () use ($daemonize) {
+                $writers = [
+                    [
+                        'name'    => 'stream',
+                        'options' => [
+                            'stream'    => __DIR__ . '/../data/logs/app.log',
+                            'formatter' => [
+                                'name'    => 'simple',
+                                'options' => ['dateTimeFormat' => '[Y-m-d H:i:s]'],
+                            ],
+                        ],
+                    ]
+                ];
+                if (!$daemonize) {
+                    $writers[] = [
+                        'name'    => 'stream',
+                        'options' => [
+                            'stream'    => 'php://stdout',
+                            'formatter' => [
+                                'name'    => 'simple',
+                                'options' => ['dateTimeFormat' => '[Y-m-d H:i:s]'],
+                            ],
+                        ],
+                    ];
+                }
                 $zendLogLogger = new Laminas\Log\Logger([
-                    'writers' => [
-                        [
-                            'name'    => 'stream',
-                            'options' => [
-                                'stream'    => __DIR__ . '/../data/logs/app.log',
-                                'formatter' => [
-                                    'name'    => 'simple',
-                                    'options' => ['dateTimeFormat' => '[Y-m-d H:i:s]'],
-                                ],
-                            ],
-                        ],
-                        [
-                            'name'    => 'stream',
-                            'options' => [
-                                'stream'    => 'php://stdout',
-                                'formatter' => [
-                                    'name'    => 'simple',
-                                    'options' => ['dateTimeFormat' => '[Y-m-d H:i:s]'],
-                                ],
-                            ],
-                        ],
-                    ],
+                    'writers' => $writers,
                 ]);
                 $zendLogLogger->addProcessor(new Laminas\Log\Processor\PsrPlaceholder);
 
