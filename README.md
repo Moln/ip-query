@@ -11,24 +11,22 @@ composer install --no-dev -o -n
 
 ### 使用 docker-compose
 
-#### 内包含 crontab 定期执行 geoipupdate
+内包含 crontab 定期执行 geoipupdate，需要配置环境参数 `GEOIPUPDATE_ACCOUNT_ID`, `GEOIPUPDATE_LICENSE_KEY`
 
-- 若需要执行 geoip 自动更新（geoipupdate）， 需要填写 [`docker/GeoIP.conf`](docker/GeoIP.conf) 的配置 
-  - `AccountID` 
-  - `LicenseKey`
-- crontab 配置文件：[`docker/geoipupdate-cron`](docker/geoipupdate-cron)
+
+#### Docker 支持的环境参数：
+```bash
+REDIS=<REDIS_HOST>:<REDIS_PORT>
+WORKER_NUM=2 # 启动进程数，1 个 CPU数， 一个进程数
+GEOIPUPDATE_ACCOUNT_ID=<YOUR_ACCOUNT_ID_HERE>   # 必须
+GEOIPUPDATE_LICENSE_KEY=<YOUR_LICENSE_KEY_HERE> # 必须
+```
 
 #### 启动：
 
 ```bash
 docker-compose up -d
 ```
-
-`.env` 支持的环境参数：
-```bash
-REDIS=<REDIS_HOST>:<REDIS_PORT>
-```
-
 
 ### 基于 HTTP 服务:
 
