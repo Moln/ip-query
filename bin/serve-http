@@ -1,79 +1,83 @@
 #!/usr/bin/env php
 <?php
 
-$container = include_once __DIR__ . '/../config/container.php';
 
 use Moln\IpQuery\Provider\CacheWrapperProvider;
 use Psr\Log\LoggerInterface;
 use Swoole\Http\Server;
 
-Swoole\Runtime::enableCoroutine(true);
+(function () {
+    Swoole\Runtime::enableCoroutine(true);
 
-$daemonize = array_search('-d', $argv, true) !== false;
+    $container = require __DIR__ . '/../config/container.php';
 
-$server = new Server('0.0.0.0', 9502, SWOOLE_PROCESS);
-$server->set([
-    'pid_file' => __DIR__ . '/../data/http.pid',
-    'log_level' => SWOOLE_LOG_DEBUG,
-    'worker_num' => $_ENV['WORKER_NUM'] ?? 2,
-    'open_tcp_keepalive' => 1,
-    'tcp_keepidle' => 5, //4s没有数据传输就进行检测
-    'tcp_keepinterval' => 1, //1s探测一次
-    'tcp_keepcount' => 5,
-    'heartbeat_idle_time'      => 10, // 表示一个连接如果10秒内未向服务器发送任何数据，此连接将被强制关闭
-    'heartbeat_check_interval' => 5,  // 表示每5秒遍历一次
-    'daemonize' => $daemonize,
-]);
+    $config = $container->get('config')['server_http'];
 
-/** @var LoggerInterface $logger */
-$logger = $container->get(LoggerInterface::class);
+    $defaultConfig = [
+        'host' => '0.0.0.0',
+        'port' => 9502,
+        'mode' => SWOOLE_PROCESS,
+        'sock_type' => SWOOLE_SOCK_TCP,
+    ];
+    $config = $config + $defaultConfig;
+    $server = new Server(
+        config_pop($config, 'host'),
+        config_pop($config, 'port'),
+        config_pop($config, 'mode'),
+        config_pop($config, 'sock_type')
+    );
 
-/** @var \Swoole\ConnectionPool $providerPool */
-$providerPool = $container->get('ProviderPool');
+    $server->set($config);
 
-$server->on('request', function ($request, \Swoole\Http\Response $response) use ($providerPool, $logger) {
-    $ip = $request->get['ip'] ?? null;
-    if (!$ip || ip2long($ip) === false) {
-        $response->status(403);
-        $response->end(json_encode(['error' => 'Invalid ip']));
-        return ;
-    }
+    /** @var LoggerInterface $logger */
+    $logger = $container->get(LoggerInterface::class);
 
-    try {
-        /** @var CacheWrapperProvider $provider */
-        $provider = $providerPool->get();
-        $result = $provider->query($ip);
-        $response->header("Content-Type", "application/json; charset=utf-8");
-        $response->end(json_encode($result, JSON_UNESCAPED_UNICODE));
-        return ;
-    } catch(\Throwable $e) {
-        $logger->error($e->getMessage());
+    /** @var \Swoole\ConnectionPool $providerPool */
+    $providerPool = $container->get('ProviderPool');
 
-        $response->setStatusCode(500);
-        $response->end((string)$e);
-    } finally {
-        $providerPool->put($provider);
-    }
-});
+    $server->on('request', function ($request, \Swoole\Http\Response $response) use ($providerPool, $logger) {
+        $ip = $request->get['ip'] ?? null;
+        if (!$ip || ip2long($ip) === false) {
+            $response->status(403);
+            $response->end(json_encode(['error' => 'Invalid ip']));
+            return ;
+        }
+
+        try {
+            /** @var CacheWrapperProvider $provider */
+            $provider = $providerPool->get();
+            $result = $provider->query($ip);
+            $response->header("Content-Type", "application/json; charset=utf-8");
+            $response->end(json_encode($result, JSON_UNESCAPED_UNICODE));
+            return ;
+        } catch(\Throwable $e) {
+            $logger->error($e->getMessage());
+
+            $response->setStatusCode(500);
+            $response->end((string)$e);
+        } finally {
+            $providerPool->put($provider);
+        }
+    });
 
 
-$server->on('start', function () use ($logger) {
-    $logger->info('Start...');
-});
-$server->on('ManagerStart', function () use ($logger) {
-    $logger->info('ManagerStart...');
-});
-$server->on('WorkerStart', function ($server, $worker_id) use ($logger) {
-    $logger->info('WorkerStart, PID: ' . getmypid() . '...');
+    $server->on('start', function () use ($logger) {
+        $logger->info('Start...');
+    });
+    $server->on('ManagerStart', function () use ($logger) {
+        $logger->info('ManagerStart...');
+    });
+    $server->on('WorkerStart', function ($server, $worker_id) use ($logger) {
+        $logger->info('WorkerStart, PID: ' . getmypid() . '...');
 
-    if($worker_id >= $server->setting['worker_num']) {
-        swoole_set_process_name("php ip-query-http task worker");
-    } else {
-        swoole_set_process_name("php ip-query-http event worker");
-    }
-});
-$server->on('Shutdown', function () use ($logger) {
-    $logger->info('Shutdown...');
-});
-$server->start();
-
+        if($worker_id >= $server->setting['worker_num']) {
+            swoole_set_process_name("php ip-query-http task worker");
+        } else {
+            swoole_set_process_name("php ip-query-http event worker");
+        }
+    });
+    $server->on('Shutdown', function () use ($logger) {
+        $logger->info('Shutdown...');
+    });
+    $server->start();
+})();

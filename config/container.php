@@ -22,7 +22,12 @@ use Laminas\ServiceManager\ServiceManager;
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
-$daemonize = array_search('-d', $argv, true) !== false;
+
+$args = getopt('d');
+$daemonize = array_key_exists('d', $args);
+
+$workerNum = $_ENV['WORKER_NUM'] ?? swoole_cpu_num();
+$workerMode = $_ENV['WORKER_MODE'] ?? ($workerNum == 1 ? SWOOLE_BASE : SWOOLE_PROCESS);
 
 $config = [
     'dependencies' => [
@@ -68,7 +73,7 @@ $config = [
 //                        $container->get(IpipNetFreeApi::class),
                         $container->get(GeoIp::class),
                     ],
-                    $container->get(LoggerInterface::class),
+                    $container->get(LoggerInterface::class)
                 );
             },
             IpipNetFreeApi::class => ReflectionBasedAbstractFactory::class,
@@ -107,10 +112,41 @@ $config = [
     'ip-query' => [
         'path' => __DIR__ . '/../data/GeoLite2-City.mmdb',
     ],
-    'redis' => $_ENV['REDIS'] ?? 'tcp://redis_server'
+    'redis' => $_ENV['REDIS'] ?? 'tcp://redis_server',
+    'server_redis' => [
+        'host' => '0.0.0.0',
+        'port' => 9501,
+        'mode' => $workerMode,
+        'sock_type' => SWOOLE_SOCK_TCP,
+        'pid_file' => __DIR__ . '/../data/redis.pid',
+        'worker_num' => $workerNum,
+        'daemonize' => $daemonize,
+    ],
+    'server_http' => [
+        'host' => '0.0.0.0',
+        'port' => 9502,
+        'mode' => $workerMode,
+        'sock_type' => SWOOLE_SOCK_TCP,
+        'pid_file' => __DIR__ . '/../data/http.pid',
+        'log_level' => SWOOLE_LOG_DEBUG,
+        'worker_num' => $workerNum,
+        'open_tcp_keepalive' => 1,
+        'tcp_keepidle' => 5, //4s没有数据传输就进行检测
+        'tcp_keepinterval' => 1, //1s探测一次
+        'tcp_keepcount' => 5,
+        'heartbeat_idle_time'      => 10, // 表示一个连接如果10秒内未向服务器发送任何数据，此连接将被强制关闭
+        'heartbeat_check_interval' => 5,  // 表示每5秒遍历一次
+        'daemonize' => $daemonize,
+    ],
 ];
 $container = new ServiceManager($config['dependencies']);
 $container->setService('config', $config);
 
+function config_pop(array &$config, string $key) {
+    $value = $config[$key];
+    unset($config[$key]);
+
+    return $value;
+}
 
 return $container;
