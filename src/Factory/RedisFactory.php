@@ -24,6 +24,10 @@ class RedisFactory
 
         $redis->connect($redisConfig['host'], $redisConfig['port'] ?? 6379, $redisConfig['timeout'] ?? 0);
 
+        if (isset($redisConfig['path'])) {
+            $redis->select((int)$redisConfig['path']);
+        }
+
         return $redis;
     }
 }
