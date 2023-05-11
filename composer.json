@@ -1,12 +1,13 @@
 {
-  "name": "ycgame/ip-query",
+  "name": "moln/ip-query",
+  "type": "project",
   "description": "IP查询接口",
   "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
     {
-      "name": "xiemaomao",
-      "email": "xiemaomao@ztgame.com"
+      "name": "moln.xie",
+      "email": "moln.xie@gmail.com"
     }
   ],
   "require": {
